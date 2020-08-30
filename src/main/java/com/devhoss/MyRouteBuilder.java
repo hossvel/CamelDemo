@@ -60,6 +60,13 @@ public class MyRouteBuilder extends RouteBuilder {
     			.to("activemq:orderFoo").to("activemq:orderBar").endChoice()
     			.otherwise().to("activemq:orderDef");
 
+    		/// use Bean procesor
+    			from("activemq:orderFoo")
+    			.log("${body}")
+    			.bean(MyBeanProcessor.class,"Modificar(${body})")
+    			.to("activemq:orderDef");
+    			
+    			
     }
 
 }
