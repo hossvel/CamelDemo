@@ -1,8 +1,12 @@
 package com.devhoss;
 
 
+import java.util.concurrent.ExecutorService;
+
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.builder.ThreadPoolBuilder;
 import org.apache.camel.component.activemq.ActiveMQComponent;
+import org.apache.camel.spi.ThreadPoolProfile;
 
 /**
  * A Camel Java DSL Router
@@ -17,6 +21,7 @@ public class MyRouteBuilder extends RouteBuilder {
     	getContext().setTracing(true);
     	getContext().addComponent("activemq",  ActiveMQComponent.activeMQComponent("tcp://localhost:61616"));
 		
+    	//getContext().isAutoStartup();
     	
     	// here is a sample which processes the input files
     			// (leaving them in place - see the 'noop' flag)
@@ -65,6 +70,13 @@ public class MyRouteBuilder extends RouteBuilder {
     			.log("${body}")
     			.bean(MyBeanProcessor.class,"Modificar(${body})")
     			.to("activemq:orderDef");
+    			
+    		/// add parallelProcessing	
+    			from("activemq:orderDef")
+    			.multicast().parallelProcessing()
+    			.to("activemq:orderFoo")
+    			.to("activemq:orderBar")
+    			.to("activemq:orderQueue");
     			
     			
     }
